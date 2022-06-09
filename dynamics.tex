@@ -1,0 +1,303 @@
+\begin{frame}{Complex dynamic systems}
+  \bigskip
+  \begin{itemize}
+  \item<1-> \structure{Objective}
+    \par\medskip
+    How to develop robust and scalable \alt<2->{\alert<2-3>{\textbf<2-3>{KRR\only<2-3>{\footnote{Knowledge Representation and Reasoning}}}}}{AI} technology
+    \\
+    for dealing with complex dynamic application scenarios?
+    \medskip
+  \item<3-> \structure{Approach} via \alert<2-3>{\textbf<2-3>{Answer Set Programming}}
+    \medskip
+    \begin{enumerate}\normalsize
+    \item<4-> \structure{\hyperlink{foundations}{Foundations}} % \ \hyperlink<8>{foundations}{\beamerbutton}
+      \only<5>{\par\smallskip\small
+        Extend the base logic of ASP, namely the \alert{logic of Here-and-There} (HT), with language elements from
+        \begin{itemize}\small
+        \item Linear Temporal Logic (LTL)
+        \item Linear Dynamic Logic (LDL)
+        \end{itemize}
+        over a common semantic structure, namely, (finite) HT traces}
+    \item<4-> \structure{\hyperlink{telingo}{Design and implementation}} % \ \hyperlink<8>{telingo}{\beamerbutton}
+      \only<6>{\par\smallskip
+      \begin{itemize}\small
+      \item Exploit temporal links
+      \item Dedicated temporal reasoning modes
+        \smallskip
+      \item \url{https://github.com/potassco/telingo}
+      \end{itemize}}
+    \item<4-8> \structure{\hyperlink{asprilo}{Application}} % \ \hyperlink<8>{asprilo}{\beamerbutton}
+      \only<7>{\par\smallskip
+        \begin{itemize}\small
+        \item Robotic intra-logistics
+        \item \url{https://potassco.org/asprilo}
+          \smallskip
+        \item Formal software engineering
+        \item \url{https://github.com/potassco/anthem}
+        \end{itemize}}
+    \end{enumerate}
+  \end{itemize}
+\end{frame}
+% ----------------------------------------------------------------------
+\subsection{Foundations}
+% ----------------------------------------------------------------------
+\begin{frame}[label=foundations]{The logic of Here-and-There}
+  \begin{itemize}
+  \item<1->\structure{Origin}%\only<8>{ (\alert<8>{\textbf{monotonic}})}
+    \medskip
+
+    Three valued logic due to  (Heyting, 1930; Gödel, 1932)
+    % strongest intermediate logic (i.e. strengthening of intuitionistic logic) that is properly contained in classical logic
+
+    \begin{itemize}\normalsize
+    \item HT is based on Kripke semantics for intuitionistic logic
+      \smallskip
+    \item An HT model is a pair $(H,T)$ such that $H\subseteq T$
+      \smallskip
+    \item Implication is a genuine connective\only<2>{, and
+
+      negation is defined in terms of implication: $\neg \varphi =  \varphi \to \bot$}
+    \end{itemize}
+  \item<4-> \structure{Discovery} (Pearce, 1996)% \uncover<7->{--- \alert<7->{Equilibrium logic}}\only<8>{ (\alert<8>{\textbf{non-monotonic}})}
+    \medskip
+    % Equilibrium models are special kinds of minimal N5 Kripke models
+
+    Minimal HT models correspond to answer sets\pause[5], more precisely,
+
+    an answer set $T$ of $\phi$ is
+    \begin{itemize}\normalsize
+    \item a total HT model $(T,T)$ of $\phi$ and
+    \item there is no $H\subset T$ such that $(H,T)$ is an HT model of $\phi$
+    \end{itemize}
+
+  \item<6-> Such models are are called \alert<6->{equilibrium models} (or answer sets)
+  \end{itemize}
+\end{frame}
+% ----------------------------------------------------------------------
+\begin{frame}{Dynamic and Temporal Logic of Here-and-There}
+  \newcommand{\M}{\ensuremath{(\mathbf{H},\mathbf{T})}}
+  \newcommand{\alwaysF}{\ensuremath{\square}}
+  \newcommand{\eventuallyF}{\ensuremath{\Diamond}}
+  \begin{itemize}
+  \item<2-> \structure{Structure} An HT trace is a sequence $(H_i,T_i)_{i=0}^{\lambda}$ of HT models
+    \medskip
+  \item<3-> \structure{Satisfaction} \ of a formula $\varphi$ in an HT trace \ $\M=(H_i,T_i)_{i=0}^{\lambda}$
+    \smallskip
+    \begin{itemize}\normalsize
+    \item<4-> \structure{Something Boolean}
+      \
+      $\M, k \models \alert{\varphi \to \psi}$
+      \pause[5]
+      \small
+      if
+      \smallskip
+
+      $( \mathbf{H}', \mathbf{T} ), k \not \models \varphi$
+      or
+      $( \mathbf{H}', \mathbf{T} ), k \models  \psi$ \ for all $\mathbf{H'} \in \{ \mathbf{H}, \mathbf{T} \}$
+      \medskip
+
+    \item<6-> \structure{Something Temporal}
+      \small
+
+      \smallskip
+      $\M, k \models \alert{\alwaysF\varphi}$
+      if
+      $\M, i \models \varphi$ \ for all $i=k..\lambda$
+
+      \smallskip
+      $\M, k \models \alert{\eventuallyF\varphi}$
+      if
+      $\M, i \models \varphi$ \ for some $i=k..\lambda$
+      \medskip
+
+    \item<7-> \structure{Something Dynamic}
+      \
+      $\M, k \models \alert{[\rho]\varphi}$
+      \pause[8]
+      if\smallskip
+
+      \small
+      $( \mathbf{H'}, \mathbf{T} ),i \models \varphi$
+      for all $i=0..\lambda$ with $(k,i) \in {\parallel\rho\parallel}^{( \mathbf{H'}, \mathbf{T} )}$ and $\mathbf{H'} \in \{ \mathbf{H}, \mathbf{T} \}$
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+% ----------------------------------------------------------------------
+\subsection{System}
+% ----------------------------------------------------------------------
+\newcommand{\telingo}{\textbf{telingo}}
+\newcommand{\clingo}{\textbf{clingo}}
+\newcommand{\asprilo}{\textbf{asprilo}}
+% ----------------------------------------------------------------------
+\begin{frame}[label=telingo,fragile]{\telingo}
+  \begin{itemize}
+  \item \structure{\telingo} % \only<2->{ \ --- \  \url{https://github.com/potassco/telingo}}
+    \begin{itemize}\normalsize
+    \item extends the full modeling language of \clingo{}\par with (past and future) temporal operators
+    \item relies on finite trace
+    \item implements an incremental translation
+    \end{itemize}
+%  \item \structure{\telingo} \ is an extension of \clingo{}
+    \smallskip
+  \item <2-> \structure{Primes} \ allow for expressing (iterated) next and previous operators
+    \begin{itemize}
+    \item $\bullet p(a)$ and $\circ q(b)$ can be expressed by \lstinline{'p(a)} and \lstinline{q'(b)}
+    \end{itemize}
+    \smallskip
+  \item <3-> \structure{Example} \ \emph{``A robot cannot lift a box unless its capacity exceeds\par the box's weight plus that of all held objects''}
+  \item <3-> []
+\begin{lstlisting}[numbers=none,basicstyle=\ttfamily\small]
+ :- lift(R,B), robot(R), capacity(R,C),
+    #sum {   W :  box(B,W);
+           V,O : 'holding(R,O,V) } > C.
+\end{lstlisting}
+  \end{itemize}
+\end{frame}
+% ----------------------------------------------------------------------
+\begin{frame}[fragile,shrink]{Fox, Goose and Beans Puzzle}
+\pause
+\begin{lstlisting}[numbers=none,frame=none,basicstyle=\ttfamily]
+#program always.
+#(\pause#)
+item(fox;beans;goose).
+route(river_bank,far_bank). route(far_bank,river_bank).
+eats(fox,goose). eats(goose,beans).
+#(\pause#)
+#program initial.
+
+at(farmer,river_bank).
+at(X,river_bank) :- item(X).
+#(\pause#)
+#program dynamic.
+
+move(farmer).
+0 { move(X) : item(X) } 1.
+
+at(X,B) :- 'at(X,A), move(X), route(A,B).
+:- move(X), item(X), 'at(farmer,A), not 'at(X,A).
+
+at(X,A) :- 'at(X,A), not move(X).
+#(\pause#)
+#program always.
+
+:- at(X,A), at(X,B), A<B.
+:- eats(X,Y), at(X,A), at(Y,A), not at(farmer,A).
+
+#program final.
+
+:- at(X,river_bank).
+
+#show move/1.
+#show at/2.
+\end{lstlisting}
+\end{frame}
+% ---------------------------------------------------------------------
+\begin{frame}[fragile,shrink]{\telingo's solution}
+\begin{lstlisting}[numbers=none,frame=none,basicstyle=\ttfamily]
+UNIX > telingo river.tel
+telingo version 1.0
+Reading from river.tel
+Solving...
+Solving...
+Solving...
+Solving...
+Solving...
+Solving...
+Solving...
+Solving...
+Answer: 1
+ State 0:
+  at(beans,river_bank) at(farmer,river_bank) at(fox,river_bank) at(goose,river_bank)
+ State 1:
+  move(farmer) move(goose)
+  at(beans,river_bank) at(farmer,far_bank) at(fox,river_bank) at(goose,far_bank)
+ State 2:
+  move(farmer)
+  at(beans,river_bank) at(farmer,river_bank) at(fox,river_bank) at(goose,far_bank)
+ State 3:
+  move(beans) move(farmer)
+  at(beans,far_bank) at(farmer,far_bank) at(fox,river_bank) at(goose,far_bank)
+ State 4:
+  move(farmer) move(goose)
+  at(beans,far_bank) at(farmer,river_bank) at(fox,river_bank) at(goose,river_bank)
+ State 5:
+  move(farmer) move(fox)
+  at(beans,far_bank) at(farmer,far_bank) at(fox,far_bank) at(goose,river_bank)
+ State 6:
+  move(farmer)
+  at(beans,far_bank) at(farmer,river_bank) at(fox,far_bank) at(goose,river_bank)
+ State 7:
+  move(farmer) move(goose)
+  at(beans,far_bank) at(farmer,far_bank) at(fox,far_bank) at(goose,far_bank)
+SATISFIABLE
+
+Models       : 1+
+Calls        : 8
+Time         : 0.032s (Solving: 0.00s 1st Model: 0.00s Unsat: 0.00s)
+CPU Time     : 0.028s
+\end{lstlisting}
+\end{frame}
+% --------------------------------------------------------------------------------
+\subsection{Application}
+% --------------------------------------------------------------------------------
+\begin{frame}[label=asprilo]{Robotic intra-logistics}
+  \begin{columns}
+    \begin{column}{0.69\textwidth}
+      \begin{itemize}
+      \item \alert{Robotics systems} for \alert{logistics} and \alert{warehouse automation}
+        based on many
+        \begin{itemize}
+        \item mobile robots
+        \item movable shelves
+        \end{itemize}
+        \smallskip
+      \item Main tasks: \alert{order fulfillment}, i.e.
+        \begin{itemize}
+        \item routing
+        \item order picking
+        \item replenishment
+        \end{itemize} % TODO: SPLIT HERE
+        \smallskip
+      \item Many competing \alert{industry solutions}:
+        \begin{itemize}
+        \item
+          % CIM corp
+          Amazon,
+          Dematic,
+          Genzebach,\par
+          Gray Orange,
+          Swisslog
+        \end{itemize}
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.35\textwidth}  %%<--- here
+      \begin{center}
+        \includegraphics[width=\textwidth]{media/kiva1.png}
+      \end{center}
+    \end{column}
+  \end{columns}
+\end{frame}
+% ----------------------------------------------------------------------
+\begin{frame}{\asprilo's components}
+  \bigskip
+  \begin{itemize}
+  \item<1-> \structure{Standardized benchmark domains}
+  \item<1-> \structure{Formal specification}
+  \item<1-> \structure{Versatile instance generator}
+  \item<1-> \structure{Visualizer for problems and (candidate) solutions}
+  \item<1-> \structure{Solution checker with error feedback}
+    \bigskip
+  \item<1->\structure{Reference ASP encodings}
+  \end{itemize}
+\end{frame}
+% --------------------------------------------------------------------------------
+\begin{frame}[c]{\asprilo's visualizer}
+  \begin{center}
+    \movie[label=asprilo-base,width=0.9\textwidth,height=0.72\textheight,poster,showcontrols]{}{media/asprilo-base.mp4}
+  \end{center}
+\end{frame}
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "slides"
+%%% End:
